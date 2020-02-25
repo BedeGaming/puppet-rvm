@@ -3,7 +3,7 @@ define rvm::system_user (
   $create = true,
   $manage_group = undef) {
 
-  if $facts['os']['family'] == 'Windows' {
+  if $::osfamily == 'Windows' {
     fail('rvm::system_user is not supported on Windows')
   }
   include rvm::params
@@ -26,12 +26,12 @@ define rvm::system_user (
     Group[$rvm::params::group] -> Exec["rvm-system-user-${name}"]
   }
 
-  $add_to_group = $facts['os']['family'] ? {
+  $add_to_group = $::osfamily ? {
     'Darwin'  => "/usr/sbin/dseditgroup -o edit -a ${name} -t user ${rvm::params::group}",
     'FreeBSD' => "/usr/sbin/pw groupmod ${rvm::params::group} -m ${name}",
     default   => "/usr/sbin/usermod -a -G ${rvm::params::group} ${name}",
   }
-  $check_in_group = $facts['os']['family'] ? {
+  $check_in_group = $::osfamily ? {
     'Darwin'  => "/usr/bin/dsmemberutil checkmembership -U ${name} -G ${rvm::params::group} | grep -q 'user is a member'",
     'FreeBSD' => "/usr/bin/id ${name} | grep -q '(${rvm::params::group})'",
     default   => "/bin/cat /etc/group | grep '^${rvm::params::group}:' | grep -qw ${name}",

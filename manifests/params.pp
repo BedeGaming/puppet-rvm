@@ -1,12 +1,12 @@
 # Default module parameters
 class rvm::params($manage_group = true) {
 
-  $manage_rvmrc = $facts['os']['family'] ? {
+  $manage_rvmrc = $::osfamily ? {
     'Windows' => false,
     default   => true
   }
 
-  $group = $facts['os']['name'] ? {
+  $group = $::operatingsystem ? {
     default => 'rvm',
   }
 
@@ -15,7 +15,7 @@ class rvm::params($manage_group = true) {
   $key_server = 'hkp://keys.gnupg.net'
 
   # install the gpg key if gpg is installed or being installed in this puppet run
-  if defined(Class['::gnupg']) or $facts['gnupg_installed'] {
+  if defined(Class['::gnupg']) {
     $gnupg_key_id = '39499BDB'
   } else {
     $gnupg_key_id = false
